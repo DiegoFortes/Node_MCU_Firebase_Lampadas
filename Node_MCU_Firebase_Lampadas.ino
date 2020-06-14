@@ -26,9 +26,21 @@ D10 = 1;
 // 1. Alterar as seguintes informações
 #define FIREBASE_HOST "automahouse-ad208.firebaseio.com" //Without http:// or https:// schemes
 #define FIREBASE_AUTH "tFRwpBblQhJ5QPyE0BGfMWBqFo8NEVAZAQfhH0OU"
+#define pin_led_vm 4                                                   //pino de status, led sinalizador que acende durante o envio do comando IR
+#define pin_led_vd 5
+#define pin_D3 0        //variaveis/constantes que serão utilizadas para ligar as lampadas
+#define pin_D4 2
+#define pin_D5 14
+#define pin_D6 12
+#define pin_D7 13
 
 //**************  VARIAVEIS GLOBAIS  *****************
-//N/A
+int lampada1;
+int lampada2;
+int lampada3;
+int lampada4;
+int lampada5;
+
 
 //*******************FUNÇÕES*********************************
 // 2. Definir o objeto de dados FirebaseESP8266 para envio e recebimento de dados
@@ -39,12 +51,27 @@ void setup()
 {
 
   Serial.begin(115200);
+  pinMode(pin_led_vd, OUTPUT);                     // inicializa o pino definido como pino de saída
+  pinMode(pin_led_vm,OUTPUT);
+  pinMode(pin_D3,OUTPUT);
+  pinMode(pin_D4,OUTPUT);
+  pinMode(pin_D5,OUTPUT);
+  pinMode(pin_D6,OUTPUT);
+  pinMode(pin_D7,OUTPUT);
+  digitalWrite(pin_led_vm,HIGH); 
+  digitalWrite(pin_D3,HIGH);
+  digitalWrite(pin_D4,HIGH); 
+  digitalWrite(pin_D5,HIGH);
+  digitalWrite(pin_D6,HIGH);     
+  digitalWrite(pin_D7,HIGH); 
   
   // Wifi AutoConnect
   WiFiManager wifiManager;                      // inicializa o wifi manager
-  wifiManager.resetSettings();                //reset saved settings
+  //wifiManager.resetSettings();                //reset saved settings
   //wifiManager.setAPStaticIPConfig(IPAddress(10,0,1,1), IPAddress(10,0,1,1), IPAddress(255,255,255,0));    //set custom ip for portal
-  wifiManager.autoConnect("AutoConnectAP");     // busca o ssid e passa do eeprom e tenta se conectar, se não conseguir se conectar inicializa uma rede wifi "AutoConnectAP" 
+  wifiManager.autoConnect("AutoConnectAP");     // busca o ssid e passa do eeprom e tenta se conectar, se não conseguir se conectar inicializa uma rede wifi "AutoConnectAP"
+  digitalWrite(pin_led_vm,LOW);                   //led verde de status "OK" de conexão com wifi
+  digitalWrite(pin_led_vd,HIGH);                  //led vermelho de status "Não OK" da conexão com wifi
   Serial.println("Wifi Conectado com sucesso!");       // se você chegar aqui, você se conectou ao WiFi
   Serial.println();
   Serial.print("Connected with IP: ");
@@ -137,4 +164,70 @@ void setup()
 //****************** LOOP *************************
 void loop()
 {
+  Firebase.getInt(firebaseData, "/Sala",lampada1);    //Recebe o estado atual de cada lampada (1=ON 0=OFF)
+  Firebase.getInt(firebaseData, "/Cozinha",lampada2);
+  Firebase.getInt(firebaseData, "/Banheiro",lampada3);
+  Firebase.getInt(firebaseData, "/Quarto 1",lampada4);
+  Firebase.getInt(firebaseData, "/Quarto 2",lampada5);
+  
+  if(lampada1 == 1)
+  {
+     digitalWrite(pin_D3,HIGH);
+     Serial.println("Ligar lampada Sala");
+
+     
+
+  }else{
+     digitalWrite(pin_D3,LOW);
+     Serial.println("Desligar lampada Sala");
+  }
+
+    if(lampada2 == 1)
+  {
+     digitalWrite(pin_D4,HIGH);
+     Serial.println("Ligar lampada Cozinha");
+
+     
+
+  }else{
+     digitalWrite(pin_D4,LOW);
+     Serial.println("Desligar lampada Cozinha");
+  }
+
+      if(lampada3 == 1)
+  {
+     digitalWrite(pin_D5,HIGH);
+     Serial.println("Ligar lampada Banheiro");
+
+     
+
+  }else{
+     digitalWrite(pin_D5,LOW);
+     Serial.println("Desligar lampada Banheiro");
+  }
+
+      if(lampada4 == 1)
+  {
+     digitalWrite(pin_D6,HIGH);
+     Serial.println("Ligar lampada Quarto 1");
+
+     
+
+  }else{
+     digitalWrite(pin_D6,LOW);
+     Serial.println("Desligar lampada Quarto 1");
+  }
+  
+      if(lampada5 == 1)
+  {
+     digitalWrite(pin_D7,HIGH);
+     Serial.println("Ligar lampada Quarto 2");
+
+     
+
+  }else{
+     digitalWrite(pin_D7,LOW);
+     Serial.println("Desligar lampada Quarto 2");
+  }
+
 }
