@@ -33,6 +33,7 @@ D10 = 1;
 #define pin_D5 14
 #define pin_D6 12
 #define pin_D7 13
+#define pin_D8 15
 
 //**************  VARIAVEIS GLOBAIS  *****************
 int lampada1;
@@ -41,6 +42,8 @@ int lampada3;
 int lampada4;
 int lampada5;
 
+int chave5;
+int estado_chave5;
 
 //*******************FUNÇÕES*********************************
 // 2. Definir o objeto de dados FirebaseESP8266 para envio e recebimento de dados
@@ -58,12 +61,14 @@ void setup()
   pinMode(pin_D5,OUTPUT);
   pinMode(pin_D6,OUTPUT);
   pinMode(pin_D7,OUTPUT);
+  pinMode(pin_D8,INPUT);
   digitalWrite(pin_led_vm,HIGH); 
   digitalWrite(pin_D3,HIGH);
   digitalWrite(pin_D4,HIGH); 
   digitalWrite(pin_D5,HIGH);
   digitalWrite(pin_D6,HIGH);     
   digitalWrite(pin_D7,HIGH); 
+
   
   // Wifi AutoConnect
   WiFiManager wifiManager;                      // inicializa o wifi manager
@@ -86,79 +91,6 @@ void setup()
   // 4. Ative a reconexão automática do Wi-Fi quando a conexão for perdida
   Firebase.reconnectWiFi(true);
 
-  // 5. Tente definir dados int para Firebase
-  // A função set retorna bool para o status da operação
-  // firebaseData requer para enviar os dados
-  if(Firebase.setInt(firebaseData, "/LED_Status", 1))
-  {
-    //Sucesso
-     Serial.println("Set int data success");
-
-  }else{
-    // Falhou?, Obtenha o motivo do erro do firebaseData
-    Serial.print("Error in setInt, ");
-    Serial.println(firebaseData.errorReason());
-  }
-
-
-  // 6. Tente obter dados int do Firebase
-  // A função get retorna bool para o status da operação
-  // firebaseData requer para receber os dados
-  if(Firebase.getInt(firebaseData, "/LED_Status"))
-  {
-    //Successo
-    Serial.print("Get int data success, int = ");
-    Serial.println(firebaseData.intData());
-
-  }else{
-    // Falhou?, Obtenha o motivo do erro do firebaseData
-
-    Serial.print("Error in getInt, ");
-    Serial.println(firebaseData.errorReason());
-  }
-
- /*
-
-  Caso deseje definir outros tipos de dados, como bool, float, double e String, você pode usar setBool, setFloat, setDouble e setString.
-  Se você deseja obter dados que você conhece seu tipo em um nó específico, use getInt, getBool, getFloat, getDouble, getString.
-  Se você não souber o tipo de dados no nó específico, use get e verifique seu tipo.
-
-  A seguir, mostra como obter os dados variantes
-
-  */
-
- if(Firebase.get(firebaseData, "/LED_Status"))
-  {
-    //Successo
-    Serial.print("Get variant data success, type = ");
-    Serial.println(firebaseData.dataType());
-
-    if(firebaseData.dataType() == "int"){
-      Serial.print("data = ");
-      Serial.println(firebaseData.intData());
-    }else if(firebaseData.dataType() == "bool"){
-      if(firebaseData.boolData())
-        Serial.println("data = true");
-      else
-        Serial.println("data = false");
-    }
-
-  }else{
-    // Falhou?, Obtenha o motivo do erro do firebaseData
-
-    Serial.print("Error in get, ");
-    Serial.println(firebaseData.errorReason());
-  }
-
-  /*
-
-  Se você deseja obter os dados em tempo real, em vez de usar get, consulte os exemplos de fluxo.
-  Se você deseja trabalhar com JSON, consulte os exemplos FirebaseJson, jsonObject e jsonArray.
-
-  Se você tiver dúvidas ou tiver encontrado os erros, sinta-se à vontade para abrir o problema aqui https://github.com/mobizt/Firebase-ESP8266
-
-  */
-
 }
 
 //****************** LOOP *************************
@@ -169,7 +101,7 @@ void loop()
   Firebase.getInt(firebaseData, "/Banheiro",lampada3);
   Firebase.getInt(firebaseData, "/Quarto 1",lampada4);
   Firebase.getInt(firebaseData, "/Quarto 2",lampada5);
-  
+
   if(lampada1 == 1)
   {
      digitalWrite(pin_D3,HIGH);
@@ -230,4 +162,19 @@ void loop()
      Serial.println("Desligar lampada Quarto 2");
   }
 
+  //Verifica se interruptor foi acionada e atualiza status no firebase, desta forma atualizando o status no APP também
+       estado_chave5= chave5;
+       chave5 = digitalRead(pin_D8);
+       Serial.print("Estado do interruptor: ");
+       Serial.println(chave5);
+       if(chave5 != estado_chave5){
+          Serial.println("Alterou o estado do interruptor, vamos alterar o da lampada tbm!");
+          if(lampada5 == 1){
+               Firebase.setInt(firebaseData, "/Quarto 2",0);
+               Serial.println("Desligar lampada Quarto 2 INTERRUPTOR");
+          }else{
+               Firebase.setInt(firebaseData, "/Quarto 2",1);
+               Serial.println("Ligar lampada Quarto 2 INTERRUPTOR");
+          }
+      }
 }
