@@ -29,6 +29,7 @@ D10 = 1;
 #define pin_led_vm 4                                                   //pino de status, led sinalizador que acende durante o envio do comando IR
 #define pin_led_vd 5
 #define pin_D3 0        //variaveis/constantes que serão utilizadas para ligar as lampadas
+#define pin_D0 16
 #define pin_D4 2
 #define pin_D5 14
 #define pin_D6 12
@@ -57,14 +58,14 @@ void setup()
   pinMode(pin_led_vd, OUTPUT);                     // inicializa o pino definido como pino de saída
   pinMode(pin_led_vm,OUTPUT);
   pinMode(pin_D3,OUTPUT);
-  pinMode(pin_D4,OUTPUT);
+  pinMode(pin_D0,OUTPUT);
   pinMode(pin_D5,OUTPUT);
   pinMode(pin_D6,OUTPUT);
   pinMode(pin_D7,OUTPUT);
-  pinMode(pin_D8,INPUT);
+  pinMode(pin_D4,INPUT);
   digitalWrite(pin_led_vm,HIGH); 
   digitalWrite(pin_D3,HIGH);
-  digitalWrite(pin_D4,HIGH); 
+  digitalWrite(pin_D0,HIGH); 
   digitalWrite(pin_D5,HIGH);
   digitalWrite(pin_D6,HIGH);     
   digitalWrite(pin_D7,HIGH); 
@@ -116,13 +117,13 @@ void loop()
 
     if(lampada2 == 1)
   {
-     digitalWrite(pin_D4,HIGH);
+     digitalWrite(pin_D0,HIGH);
      Serial.println("Ligar lampada Cozinha");
 
      
 
   }else{
-     digitalWrite(pin_D4,LOW);
+     digitalWrite(pin_D0,LOW);
      Serial.println("Desligar lampada Cozinha");
   }
 
@@ -164,7 +165,7 @@ void loop()
 
   //Verifica se interruptor foi acionada e atualiza status no firebase, desta forma atualizando o status no APP também
        estado_chave5= chave5;
-       chave5 = digitalRead(pin_D8);
+       chave5 = digitalRead(pin_D4);
        Serial.print("Estado do interruptor: ");
        Serial.println(chave5);
        if(chave5 != estado_chave5){
